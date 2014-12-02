@@ -23,9 +23,9 @@
 	NB : see FITS file format documentation to see what each parameter means (though AIPS may interpret it differently...)
 */
 
-#include "error_map_heads.hpp"
+#include "quickfits.h"
 
-int cfits_read_header_map(const char* filename , int* dim , double* cell , double* ra , double* dec , double* centre_shift , double* rotations , double* freq , double* freq_delta , int* stokes , char* object , char* observer , char* telescope , double* equinox , char* date_obs ,  double* bmaj , double* bmin , double* bpa , int* ncc, int cc_table_version)
+int quickfits_read_map_header(const char* filename , int* dim , double* cell , double* ra , double* dec , double* centre_shift , double* rotations , double* freq , double* freq_delta , int* stokes , char* object , char* observer , char* telescope , double* equinox , char* date_obs ,  double* bmaj , double* bmin , double* bpa , int* ncc, int cc_table_version)
 {
 
 /*
@@ -133,7 +133,7 @@ int cfits_read_header_map(const char* filename , int* dim , double* cell , doubl
 			rotations[1]=temp;
 		}
 		
-		if( !strcmp(key_type,"FREQ    ") )
+		if( !strncmp(key_type,"FREQ",4) )
 		{
 			sprintf(key_name,"CRVAL%d",i);
 			fits_read_key(fptr,TDOUBLE,key_name,freq,comment,&status);
@@ -141,7 +141,7 @@ int cfits_read_header_map(const char* filename , int* dim , double* cell , doubl
 			fits_read_key(fptr,TDOUBLE,key_name,freq_delta,comment,&status);
 		}
 		
-		if( !strcmp(key_type,"STOKES    ") )
+		if( !strncmp(key_type,"STOKES",6) )
 		{
 			sprintf(key_name,"CRVAL%d",i);
 			fits_read_key(fptr,TDOUBLE,key_name,stokes,comment,&status);
@@ -154,7 +154,7 @@ int cfits_read_header_map(const char* filename , int* dim , double* cell , doubl
 
 	fits_read_key(fptr,TDOUBLE,"NAXIS1",&temp,comment,&status);
 	err+=status;
-	dim[0]=int(temp);	// dim is stored as a double in the FITS file
+	dim[0]=(int)(temp);	// dim is stored as a double in the FITS file
 
 	if(err!=0)
 	{
@@ -192,7 +192,7 @@ int cfits_read_header_map(const char* filename , int* dim , double* cell , doubl
 				printf("ERROR : cfits_read_header_map -->  Error reading BMAJ information, error = %d\n",status);
 				return(err);
 			}
-			bmaj[0]=double(floatbuff);
+			bmaj[0]=(double)(floatbuff);
 
 			fits_get_colnum(fptr,CASEINSEN,bminname,&colnum,&status);
 			if(status!=0)
@@ -206,7 +206,7 @@ int cfits_read_header_map(const char* filename , int* dim , double* cell , doubl
 				printf("ERROR : cfits_read_header_map -->  Error reading BMIN information, error = %d\n",status);
 				return(err);
 			}
-			bmin[0]=double(floatbuff);
+			bmin[0]=(double)(floatbuff);
 
 			fits_get_colnum(fptr,CASEINSEN,bpaname,&colnum,&status);
 			if(status!=0)
@@ -220,7 +220,7 @@ int cfits_read_header_map(const char* filename , int* dim , double* cell , doubl
 				printf("ERROR : cfits_read_header_map -->  Error reading BPA information, error = %d\n",status);
 				return(err);
 			}
-			bpa[0]=double(floatbuff);
+			bpa[0]=(double)(floatbuff);
 		}
 	}
 
@@ -233,7 +233,8 @@ int cfits_read_header_map(const char* filename , int* dim , double* cell , doubl
 
 	if (cc_table_version >=0 )
 	{
-		if (fits_movnam_hdu(fptr,ANY_HDU,cchdu,cc_table_version,&status) != BAD_HDU_NUM)		// move to main AIPS UV hdu
+		fits_movnam_hdu(fptr,ANY_HDU,cchdu,cc_table_version,&status);
+		if (status==0)		// move to main AIPS UV hdu
 		{
 			fits_get_num_rows(fptr,&longbuff,&status);
 			ncc[0]=longbuff;

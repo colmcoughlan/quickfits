@@ -25,9 +25,9 @@
 	NB : see FITS file format documentation to see what each parameter means (though AIPS may interpret it differently...)
 */
 
-#include "error_map_heads.hpp"
+#include "quickfits.h"
 
-int cfits_read_map(const char* filename, double* tarr, int dim2 , double* cc_xarray, double* cc_yarray, double* cc_varray , int ncc, int cc_table_version)
+int quickfits_read_map(const char* filename, double* tarr, int dim2 , double* cc_xarray, double* cc_yarray, double* cc_varray , int ncc, int cc_table_version)
 {
 /*
 	INPUTS:

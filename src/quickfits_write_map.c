@@ -25,10 +25,10 @@
 	NB : see FITS file format documentation to see what each parameter means (though AIPS may interpret it differently...)
 */
 
-#include "error_map_heads.hpp"
+#include "quickfits.h"
 
 
-int cfits_write(const char* filename , double* array , int imsize , double cell , double ra , double dec , double* centre_shift , double* rotations , double freq , double freq_delta , int stokes , char* object , char* observer , char* telescope , double equinox , char* date_obs , char* history , double bmaj , double bmin , double bpa , int niter , bool jy_per_beam)
+int quickfits_write_map(const char* filename , double* array , int imsize , double cell , double ra , double dec , double* centre_shift , double* rotations , double freq , double freq_delta , int stokes , char* object , char* observer , char* telescope , double equinox , char* date_obs , char* history , double bmaj , double bmin , double bpa , int niter , bool jy_per_beam)
 {
 
 	fitsfile *fptr;	// pointer to fits file
@@ -137,7 +137,7 @@ int cfits_write(const char* filename , double* array , int imsize , double cell 
 	sprintf(tstring,"STOKES");
 	fits_update_key(fptr, TSTRING, "CTYPE4" , tstring , comment , &status);	// write out information about the fourth axis, Stokes parameter
 
-	temp = double(stokes);
+	temp = (double)(stokes);
 	fits_update_key(fptr, TDOUBLE, "CRVAL4", &temp , comment , &status);
 
 	temp=1.0;
