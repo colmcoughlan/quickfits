@@ -12,7 +12,7 @@ DEPS=/src/quickfits.h
 
 all: ${OBJS}
 	ar rcs libquickfits.a src/*.o
-
+	cp src/quickfits.h .
 
 clean:
-	rm ${wildcard src/*.o} libquickfits.a
+	rm ${wildcard src/*.o} libquickfits.a quickfits.h
