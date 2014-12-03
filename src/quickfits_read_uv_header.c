@@ -1,3 +1,22 @@
+/*
+    This program is called quickfits_read_uv_header. It is part of the quickfits library interface to CFITSIO and reads the header of a UV FITS file.
+    Copyright (C) 2012  Colm Coughlan
+    colmcoughlanirl <!at!> gmail.com https://github.com/colmcoughlan/quickfits
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "quickfits.h"
 
 int quickfits_read_uv_header(const char* filename, double* ra, double* dec, char* object, double* freq, int* nvis, int* nchan, int* central_chan, double* chan_width, int* nif)
@@ -31,14 +50,14 @@ int quickfits_read_uv_header(const char* filename, double* ra, double* dec, char
 
 	if ( fits_open_file(&fptr,filename, READONLY, &status) )	// open file and make sure it's open
 	{
-		printf("ERROR : cfits_read_header --> Error opening FITS file, error = %d\n",status);
+		printf("ERROR : quickfits_read_uv_header --> Error opening FITS file, error = %d\n",status);
 		return(status);
 	}
 
 	if (fits_movnam_hdu(fptr,BINARY_TBL,extname,0,&status))		// move to main AIPS UV hdu
 	{
-		printf("ERROR : cfits_read_header --> Error locating AIPS UV binary extension, error = %d\n",status);
-		printf("ERROR : cfits_read_header --> Did you remember to use the AIPS FITAB task instead of FITTP?\n");
+		printf("ERROR : quickfits_read_uv_header --> Error locating AIPS UV binary extension, error = %d\n",status);
+		printf("ERROR : quickfits_read_uv_header --> Did you remember to use the AIPS FITAB task instead of FITTP?\n");
 		return(status);
 	}
 
@@ -56,7 +75,7 @@ int quickfits_read_uv_header(const char* filename, double* ra, double* dec, char
 	nvis[0]=(int)(temp);	// nvis is stored as a double in the FITS file
 	if(err!=0)
 	{
-		printf("ERROR : cfits_read_header --> Error reading keywords, custom error = %d\n",err);
+		printf("ERROR : quickfits_read_uv_header --> Error reading keywords, custom error = %d\n",err);
 	}
 	
 	i=1;
@@ -107,7 +126,7 @@ int quickfits_read_uv_header(const char* filename, double* ra, double* dec, char
 
 	if ( fits_close_file(fptr, &status) )
 	{
-		printf("ERROR : cfits_read_header --> Error closing FITS file, error = %d\n",status);
+		printf("ERROR : quickfits_read_uv_header --> Error closing FITS file, error = %d\n",status);
 		return(status);
 	}
 

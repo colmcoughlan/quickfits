@@ -1,6 +1,7 @@
 /*
-    This program is called cfits_write. It interacts with the CFITSIO library to read metadata from a FITS file
+    This program is called quickfits_read_map_header. It is part of the quickfits library interface to CFITSIO and reads in a FITS map header.
     Copyright (C) 2012  Colm Coughlan
+    colmcoughlanirl <!at!> gmail.com https://github.com/colmcoughlan/quickfits
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -67,14 +68,14 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 
 	if ( fits_open_file(&fptr,filename, READONLY, &status) )	// open file and make sure it's open
 	{
-		printf("ERROR : cfits_read_header_map --> Error opening FITS file, error = %d\n",status);
+		printf("ERROR : quickfits_read_map_header --> Error opening FITS file, error = %d\n",status);
 		return(status);
 	}
 
 	if (fits_movabs_hdu(fptr,1,&i,&status))		// move to main AIPS image HDU (assuming it's the first one)
 	{
-		printf("ERROR : cfits_read_header_map --> Error locating AIPS ACSII table extension, error = %d\n",status);
-		printf("ERROR : cfits_read_header_map --> Did you remember to use the AIPS FITAB task instead of FITTP?\n");
+		printf("ERROR : quickfits_read_map_header --> Error locating AIPS ACSII table extension, error = %d\n",status);
+		printf("ERROR : quickfits_read_map_header --> Did you remember to use the AIPS FITAB task instead of FITTP?\n");
 		return(status);
 	}
 
@@ -97,7 +98,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 	
 	if(err!=0)
 	{
-		printf("ERROR : cfits_read_header_map --> Error reading RA and DEC, custom error = %d\n",err);
+		printf("ERROR : quickfits_read_map_header --> Error reading RA and DEC, custom error = %d\n",err);
 		return(err);
 	}
 	
@@ -158,7 +159,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 
 	if(err!=0)
 	{
-		printf("ERROR : cfits_read_header_map --> Error reading keywords, custom error = %d\n",err);
+		printf("ERROR : quickfits_read_map_header --> Error reading keywords, custom error = %d\n",err);
 		return(err);
 	}
 
@@ -173,7 +174,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 	{
 		if (fits_movnam_hdu(fptr,BINARY_TBL,beamhdu,0,&status))		// move to beam information hdu
 		{
-			printf("Warning : cfits_read_header_map --> No beam information found.");
+			printf("Warning : quickfits_read_map_header --> No beam information found.");
 			bmaj[0] = 0.0;
 			bmin[0] = 0.0;	// changed this because model files don't have any beam information. Should check to make sure beam info is valid in other code
 			bpa[0] = 0.0;
@@ -183,13 +184,13 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			fits_get_colnum(fptr,CASEINSEN,bmajname,&colnum,&status);
 			if(status!=0)
 			{
-				printf("ERROR : cfits_read_header_map -->  Error locating BMAJ information, error = %d\n",status);
+				printf("ERROR : quickfits_read_map_header -->  Error locating BMAJ information, error = %d\n",status);
 				return(err);
 			}
 			fits_read_col(fptr,TFLOAT,colnum,1,1,1,&float_null,&floatbuff,&int_null,&status);
 			if(status!=0)
 			{
-				printf("ERROR : cfits_read_header_map -->  Error reading BMAJ information, error = %d\n",status);
+				printf("ERROR : quickfits_read_map_header -->  Error reading BMAJ information, error = %d\n",status);
 				return(err);
 			}
 			bmaj[0]=(double)(floatbuff);
@@ -197,13 +198,13 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			fits_get_colnum(fptr,CASEINSEN,bminname,&colnum,&status);
 			if(status!=0)
 			{
-				printf("ERROR : cfits_read_header_map -->  Error locating BMIN information, error = %d\n",status);
+				printf("ERROR : quickfits_read_map_header -->  Error locating BMIN information, error = %d\n",status);
 				return(err);
 			}
 			fits_read_col(fptr,TFLOAT,colnum,1,1,1,&float_null,&floatbuff,&int_null,&status);
 			if(status!=0)
 			{
-				printf("ERROR : cfits_read_header_map -->  Error reading BMIN information, error = %d\n",status);
+				printf("ERROR : quickfits_read_map_header -->  Error reading BMIN information, error = %d\n",status);
 				return(err);
 			}
 			bmin[0]=(double)(floatbuff);
@@ -211,13 +212,13 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			fits_get_colnum(fptr,CASEINSEN,bpaname,&colnum,&status);
 			if(status!=0)
 			{
-				printf("ERROR : cfits_read_header_map -->  Error locating BPA information, error = %d\n",status);
+				printf("ERROR : quickfits_read_map_header -->  Error locating BPA information, error = %d\n",status);
 				return(err);
 			}
 			fits_read_col(fptr,TFLOAT,colnum,1,1,1,&float_null,&floatbuff,&int_null,&status);
 			if(status!=0)
 			{
-				printf("ERROR : cfits_read_header_map -->  Error reading BPA information, error = %d\n",status);
+				printf("ERROR : quickfits_read_map_header -->  Error reading BPA information, error = %d\n",status);
 				return(err);
 			}
 			bpa[0]=(double)(floatbuff);
@@ -240,13 +241,13 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			ncc[0]=longbuff;
 			if(status!=0)
 			{
-				printf("ERROR : cfits_read_header_map -->  Error reading number of clean components, error = %d\n",status);
+				printf("ERROR : quickfits_read_map_header -->  Error reading number of clean components, error = %d\n",status);
 				return(status);
 			}
 		}
 		else
 		{
-			printf("WARNING : cfits_read_header_map -->  No clean component table detected.\n");
+			printf("WARNING : quickfits_read_map_header -->  No clean component table detected.\n");
 			ncc[0]=0;
 			return(status);
 		}
@@ -262,7 +263,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 	status=0;
 	if ( fits_close_file(fptr, &status) )
 	{
-		printf("ERROR : cfits_read_header_map --> Error closing FITS file, error = %d\n",status);
+		printf("ERROR : quickfits_read_map_header --> Error closing FITS file, error = %d\n",status);
 		return(status);
 	}
 

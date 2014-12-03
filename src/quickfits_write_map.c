@@ -1,6 +1,7 @@
 /*
-    This program is called cfits_write. It interacts with the CFITSIO library to write out a FITS file from an array of doubles
+    This program is called quickfits_write_map. It is part of the quickfits library interface to CFITSIO and writes out FITS maps from memory.
     Copyright (C) 2012  Colm Coughlan
+    colmcoughlanirl <!at!> gmail.com https://github.com/colmcoughlan/quickfits
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -195,12 +196,12 @@ int quickfits_write_map(const char* filename , double* array , int imsize , doub
 		fits_create_tbl(fptr , BINARY_TBL , 1 , 4 , beaminfo_names , beaminfo_datatype , beaminfo_units , tbl_name , &status);	// make beam table
 		if(status!=0)
 		{
-			printf("cfits_write_map -->  Error creating beam information table for %s, error code %i\n",filename,status);
+			printf("quickfits_write_map -->  Error creating beam information table for %s, error code %i\n",filename,status);
 		}
 
 		if(fits_movnam_hdu(fptr , BINARY_TBL , tbl_name , 0 , &status))
 		{
-			printf("cfits_write_map -->  Error writing beam information to %s, error code %i\n",filename,status);
+			printf("quickfits_write_map -->  Error writing beam information to %s, error code %i\n",filename,status);
 		}
 
 		fits_write_col(fptr, TDOUBLE , 1 , 1 , 1 , 1 , &freq , &status);
