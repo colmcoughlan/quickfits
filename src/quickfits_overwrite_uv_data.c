@@ -1,41 +1,37 @@
 /*
-    This program is called quickfits_overwrite_uv_data. It is part of the quickfits library interface to CFITSIO and overwrites data in a UV FITS file.
-    Copyright (C) 2012  Colm Coughlan
-    colmcoughlanirl <!at!> gmail.com https://github.com/colmcoughlan/quickfits
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ Copyright (c) 2014, Colm Coughlan
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "quickfits.h"
 
-int quickfits_overwrite_uv_data(const char* filename, int nvis, int nchan, int nif, double* tvis)
+int quickfits_overwrite_uv_data(const char* filename, int nvis, int nchan, int nif, double* u, double* v, double* tvis)
 {
 /*
+    Overwrite UV data in a UV FITS file produced by FITAB in AIPS.
+ 
 	INPUTS:
-		char* tfilename : c string = name of FITS file to be read
+		const char* tfilename : c string = name of FITS file to be read
 		int nvis : number of visibilities to be read
+        int nchan : number of channels to be read
+        int nif : number of IFs to be read
 	OUTPUTS:
-		u_array : nvis u coords, converted to physical units by fitsio
-		v_array : nvis v coords, converted to physical units by fitsio
-		tvis : (nvis*12*nif*nchan) visibilities, in Jy
+		tvis : (nvis*12*nif*nchan) visibilities, in Jy. 12 = 4 Stokes * (Re,Im, Weight)
 */
 	fitsfile *fptr;
 
 	int status, i, j;
 	int err;
 	char extname[]="AIPS UV ";
-	char comment[]="UVFILL";
+	char comment[FLEN_VALUE];
 	char key_name[FLEN_VALUE];
 	char key_type[FLEN_VALUE];
 	double d_null=0;
@@ -57,18 +53,18 @@ int quickfits_overwrite_uv_data(const char* filename, int nvis, int nchan, int n
 		printf("ERROR : quickfits_overwrite_uv_data --> Did you remember to use the AIPS FITAB task instead of FITTP?\n");
 		return(status);
 	}
-	// write out data - no need to overwrite u,v etc. as they are not changing
-/*
-	fits_write_col(fptr, TDOUBLE, 1, 1, 1, nvis,  u_array, &status);
+
+
+	fits_write_col(fptr, TDOUBLE, 1, 1, 1, nvis,  u, &status);
 	err+=status;
 	if(err!=0)
 	{
 		printf("ERROR : cfits_overwrite_uvdata --> Error writing uarray, custom error = %d\n",err);
 	}
 
-	fits_write_col(fptr, TDOUBLE, 2, 1, 1, nvis,  v_array, &status);
+	fits_write_col(fptr, TDOUBLE, 2, 1, 1, nvis,  v, &status);
 	err+=status;
-*/
+
 
 	i=1;
 	status=0;
@@ -76,7 +72,6 @@ int quickfits_overwrite_uv_data(const char* filename, int nvis, int nchan, int n
 	{
 		sprintf(key_name,"TTYPE%d",i);
 		fits_read_key(fptr,TSTRING,key_name,key_type,comment,&status);
-		
 		if( !strncmp(key_type,"VISIBILITIES",12) )
 		{
 			fits_write_col(fptr, TDOUBLE, i, 1, 1, nvis*12.0*nif*nchan,  tvis, &status);
