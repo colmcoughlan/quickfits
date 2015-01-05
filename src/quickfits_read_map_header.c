@@ -101,7 +101,6 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 
 		if( !strcmp(key_type,"RA---SIN") )
 		{
-			printf("Success\n");
 			sprintf(key_name,"CDELT%d",i);
 			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);
 			cell[0]=fabs(temp);
