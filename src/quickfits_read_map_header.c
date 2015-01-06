@@ -163,7 +163,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 		status=0;
 		if (fits_movnam_hdu(fptr,BINARY_TBL,beamhdu,0,&status))		// move to beam information hdu
 		{
-			printf("Warning : quickfits_read_map_header --> No beam information found.");
+			printf("Warning : quickfits_read_map_header --> No beam information found.\n");
 			bmaj[0] = 0.0;
 			bmin[0] = 0.0;	// changed this because model files don't have any beam information. Should check to make sure beam info is valid in other code
 			bpa[0] = 0.0;
