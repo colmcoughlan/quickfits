@@ -103,45 +103,69 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 		{
 			sprintf(key_name,"CDELT%d",i);
 			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);
-			cell[0]=fabs(temp);
-			sprintf(key_name,"CRPIX%d",i);
-			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);
-			centre_shift[0]=temp;
-			sprintf(key_name,"CROTA%d",i);
-			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);
-			rotations[0]=temp;
-			
 			if(status==KEY_NO_EXIST)
 			{
-				printf("ERROR : quickfits_read_map_header --> Missing RA information %s\n",key_name);
+				printf("WARNING: quickfits_read_map_header --> Missing RA information %s\n",key_name);
+				status= 0;
 			}
+			cell[0]=fabs(temp);
+			
+			sprintf(key_name,"CRPIX%d",i);
+			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);
+			if(status==KEY_NO_EXIST)
+			{
+				printf("WARNING: quickfits_read_map_header --> Missing RA information %s\n",key_name);
+				status= 0;
+			}
+			centre_shift[0]=temp;
+			
+			sprintf(key_name,"CROTA%d",i);
+			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);
+			if(status==KEY_NO_EXIST)
+			{
+				printf("WARNING: quickfits_read_map_header --> Missing RA information %s\n",key_name);
+				status= 0;
+			}
+			rotations[0]=temp;
 		}
 
 		if( !strcmp(key_type,"DEC--SIN") )
 		{
 			sprintf(key_name,"CRPIX%d",i);
 			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);
-			centre_shift[1]=temp;
-			sprintf(key_name,"CROTA%d",i);
-			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);
-			rotations[1]=temp;
-			
 			if(status==KEY_NO_EXIST)
 			{
-				printf("ERROR : quickfits_read_map_header --> Missing DEC information %s\n",key_name);
+				printf("WARNING : quickfits_read_map_header --> Missing DEC information %s\n",key_name);
+				status = 0;
 			}
+			centre_shift[1]=temp;
+			
+			sprintf(key_name,"CROTA%d",i);
+			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);			
+			if(status==KEY_NO_EXIST)
+			{
+				printf("WARNING : quickfits_read_map_header --> Missing DEC information %s\n",key_name);
+				status = 0;
+			}
+			rotations[1]=temp;
 		}
 		
 		if( !strncmp(key_type,"FREQ",4) )
 		{
 			sprintf(key_name,"CRVAL%d",i);
 			fits_read_key(fptr,TDOUBLE,key_name,freq,comment,&status);
-			sprintf(key_name,"CDELT%d",i);
-			fits_read_key(fptr,TDOUBLE,key_name,freq_delta,comment,&status);
-
 			if(status==KEY_NO_EXIST)
 			{
-				printf("ERROR : quickfits_read_map_header --> Missing FREQ information %s\n",key_name);
+				printf("WARNING : quickfits_read_map_header --> Missing FREQ information %s\n",key_name);
+				status = 0;
+			}
+
+			sprintf(key_name,"CDELT%d",i);
+			fits_read_key(fptr,TDOUBLE,key_name,freq_delta,comment,&status);
+			if(status==KEY_NO_EXIST)
+			{
+				printf("WARNING : quickfits_read_map_header --> Missing FREQ information %s\n",key_name);
+				status = 0;
 			}
 		}
 
@@ -153,7 +177,8 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 
 			if(status==KEY_NO_EXIST)
 			{
-				printf("ERROR : quickfits_read_map_header --> Missing Stokes information %s\n",key_name);
+				printf("WARNING : quickfits_read_map_header --> Missing Stokes information %s\n",key_name);
+				status = 0;
 			}
 		}
 
