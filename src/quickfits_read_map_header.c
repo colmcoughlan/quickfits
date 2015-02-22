@@ -32,7 +32,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 */
 	fitsfile *fptr;
 
-	int status,i;
+	int status,i,j;
 	int err;
 	char comment[FLEN_VALUE];
 	char key_name[FLEN_VALUE];
@@ -68,44 +68,42 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 		return(status);
 	}
 
-	// read in some optional keys
+	// read in some optional keys (these may fail on strange files - but are not that important)
 
 	fits_read_key(fptr,TSTRING,"OBJECT",object,comment,&status);
 	fits_read_key(fptr,TSTRING,"OBSERVER",observer,comment,&status);
 	fits_read_key(fptr,TSTRING,"TELESCOP",telescope,comment,&status);
 	fits_read_key(fptr,TDOUBLE,"EQUINOX",equinox,comment,&status);
 	fits_read_key(fptr,TSTRING,"DATE-OBS",date_obs,comment,&status);
-
-	// read in important keys
-
-	status = 0;
-
-	fits_read_key(fptr,TDOUBLE,"OBSRA",ra,comment,&status);
-	err+=status;
-	fits_read_key(fptr,TDOUBLE,"OBSDEC",dec,comment,&status);
-	err+=status;
-	
-	if(err!=0)
-	{
-		printf("ERROR : quickfits_read_map_header --> Error reading RA and DEC, custom error = %d\n",err);
-		return(err);
-	}
 	
 	//	Now iterate through CTYPE coords to get important information about RA, DEC, cellsize etc.
+	//  Most of this data is important - at least notify the user if some is missing
 	
 	i=1;
+	status=0;
+	j=0;
 	while(status!=KEY_NO_EXIST)
 	{
 		sprintf(key_name,"CTYPE%d",i);
 		fits_read_key(fptr,TSTRING,key_name,key_type,comment,&status);
 
-		if( !strcmp(key_type,"RA---SIN") )
+		if( !strncmp(key_type,"RA---SIN",8) )
 		{
+			j++;
+			
+			sprintf(key_name,"CRVAL%d",i);
+			fits_read_key(fptr,TDOUBLE,key_name,ra,comment,&status);
+			if(status==KEY_NO_EXIST)
+			{
+				printf("WARNING : quickfits_read_map_header --> Missing RA information %s\n",key_name);
+				status= 0;
+			}
+			
 			sprintf(key_name,"CDELT%d",i);
 			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);
 			if(status==KEY_NO_EXIST)
 			{
-				printf("WARNING: quickfits_read_map_header --> Missing RA information %s\n",key_name);
+				printf("WARNING : quickfits_read_map_header --> Missing RA information %s\n",key_name);
 				status= 0;
 			}
 			cell[0]=fabs(temp);
@@ -114,7 +112,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);
 			if(status==KEY_NO_EXIST)
 			{
-				printf("WARNING: quickfits_read_map_header --> Missing RA information %s\n",key_name);
+				printf("WARNING : quickfits_read_map_header --> Missing RA information %s\n",key_name);
 				status= 0;
 			}
 			centre_shift[0]=temp;
@@ -123,14 +121,24 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);
 			if(status==KEY_NO_EXIST)
 			{
-				printf("WARNING: quickfits_read_map_header --> Missing RA information %s\n",key_name);
+				printf("WARNING : quickfits_read_map_header --> Missing RA information %s\n",key_name);
 				status= 0;
 			}
 			rotations[0]=temp;
 		}
 
-		if( !strcmp(key_type,"DEC--SIN") )
+		if( !strncmp(key_type,"DEC--SIN",8) )
 		{
+			j++;
+			
+			sprintf(key_name,"CRVAL%d",i);
+			fits_read_key(fptr,TDOUBLE,key_name,dec,comment,&status);
+			if(status==KEY_NO_EXIST)
+			{
+				printf("WARNING : quickfits_read_map_header --> Missing DEC information %s\n",key_name);
+				status = 0;
+			}
+
 			sprintf(key_name,"CRPIX%d",i);
 			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);
 			if(status==KEY_NO_EXIST)
@@ -144,7 +152,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);			
 			if(status==KEY_NO_EXIST)
 			{
-				printf("WARNING : quickfits_read_map_header --> Missing DEC information %s\n",key_name);
+				printf("WARNING: quickfits_read_map_header --> Missing DEC information %s\n",key_name);
 				status = 0;
 			}
 			rotations[1]=temp;
@@ -152,6 +160,8 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 		
 		if( !strncmp(key_type,"FREQ",4) )
 		{
+			j++;
+			
 			sprintf(key_name,"CRVAL%d",i);
 			fits_read_key(fptr,TDOUBLE,key_name,freq,comment,&status);
 			if(status==KEY_NO_EXIST)
@@ -181,10 +191,14 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 				status = 0;
 			}
 		}
-
 		i++;
 	}
 	status=0;
+	if(j!=3)
+	{
+		printf("WARNING : quickfits_read_map_header --> Error reading RA, DEC, FREQ information\n",err);
+		printf("\t Only %d out of 3 read.\n",j);
+	}
 
 
 	fits_read_key(fptr,TDOUBLE,"NAXIS1",&temp,comment,&status);
@@ -209,7 +223,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 		status=0;
 		if (fits_movnam_hdu(fptr,BINARY_TBL,beamhdu,0,&status))		// move to beam information hdu
 		{
-			printf("Warning : quickfits_read_map_header --> No beam information found.\n");
+			printf("WARNING : quickfits_read_map_header --> No beam information found.\n");
 			bmaj[0] = 0.0;
 			bmin[0] = 0.0;	// changed this because model files don't have any beam information. Should check to make sure beam info is valid in other code
 			bpa[0] = 0.0;
