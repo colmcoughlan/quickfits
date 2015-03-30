@@ -106,7 +106,10 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 				printf("WARNING : quickfits_read_map_header --> Missing RA information %s\n",key_name);
 				status= 0;
 			}
-			cell[0]=fabs(temp);
+			else
+			{
+				cell[0]=fabs(temp);
+			}
 			
 			sprintf(key_name,"CRPIX%d",i);
 			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);
@@ -115,7 +118,10 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 				printf("WARNING : quickfits_read_map_header --> Missing RA information %s\n",key_name);
 				status= 0;
 			}
-			centre_shift[0]=temp;
+			else
+			{
+				centre_shift[0]=temp;
+			}
 			
 			sprintf(key_name,"CROTA%d",i);
 			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);
@@ -124,7 +130,10 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 				printf("WARNING : quickfits_read_map_header --> Missing RA information %s\n",key_name);
 				status= 0;
 			}
-			rotations[0]=temp;
+			else
+			{
+				rotations[0]=temp;
+			}
 		}
 
 		if( !strncmp(key_type,"DEC--SIN",8) )
@@ -146,16 +155,22 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 				printf("WARNING : quickfits_read_map_header --> Missing DEC information %s\n",key_name);
 				status = 0;
 			}
-			centre_shift[1]=temp;
+			else
+			{
+				centre_shift[1]=temp;
+			}
 			
 			sprintf(key_name,"CROTA%d",i);
 			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);			
 			if(status==KEY_NO_EXIST)
 			{
-				printf("WARNING: quickfits_read_map_header --> Missing DEC information %s\n",key_name);
+				printf("WARNING : quickfits_read_map_header --> Missing DEC information %s\n",key_name);
 				status = 0;
 			}
-			rotations[1]=temp;
+			else
+			{
+				rotations[1]=temp;
+			}
 		}
 		
 		if( !strncmp(key_type,"FREQ",4) )
@@ -183,12 +198,15 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 		{
 			sprintf(key_name,"CRVAL%d",i);
 			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);
-			stokes[0]=(int)(temp);
 
 			if(status==KEY_NO_EXIST)
 			{
 				printf("WARNING : quickfits_read_map_header --> Missing Stokes information %s\n",key_name);
 				status = 0;
+			}
+			else
+			{
+				stokes[0]=(int)(temp);
 			}
 		}
 		i++;
@@ -202,12 +220,11 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 
 
 	fits_read_key(fptr,TDOUBLE,"NAXIS1",&temp,comment,&status);
-	err+=status;
 	dim[0]=(int)(temp);	// dim is stored as a double in the FITS file
 
-	if(err!=0)
+	if(status!=0)
 	{
-		printf("ERROR : quickfits_read_map_header --> Error reading keywords, custom error = %d\n",err);
+		printf("ERROR : quickfits_read_map_header --> Error reading image size from NAXIS1, error = %d\n",err);
 		return(err);
 	}
 
@@ -242,7 +259,10 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 				printf("ERROR : quickfits_read_map_header -->  Error reading BMAJ information, error = %d\n",status);
 				return(err);
 			}
-			bmaj[0]=(double)(floatbuff);
+			else
+			{
+				bmaj[0]=(double)(floatbuff);
+			}
 
 			fits_get_colnum(fptr,CASEINSEN,bminname,&colnum,&status);
 			if(status!=0)
@@ -256,7 +276,10 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 				printf("ERROR : quickfits_read_map_header -->  Error reading BMIN information, error = %d\n",status);
 				return(err);
 			}
-			bmin[0]=(double)(floatbuff);
+			else
+			{
+				bmin[0]=(double)(floatbuff);
+			}
 
 			fits_get_colnum(fptr,CASEINSEN,bpaname,&colnum,&status);
 			if(status!=0)
@@ -270,7 +293,10 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 				printf("ERROR : quickfits_read_map_header -->  Error reading BPA information, error = %d\n",status);
 				return(err);
 			}
-			bpa[0]=(double)(floatbuff);
+			else
+			{
+				bpa[0]=(double)(floatbuff);
+			}
 		}
 	}
 
