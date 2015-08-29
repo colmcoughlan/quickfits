@@ -13,7 +13,7 @@
 
 #include "quickfits.h"
 
-int quickfits_read_map(const char* filename, double* tarr, int dim2 , double* cc_xarray, double* cc_yarray, double* cc_varray , int ncc, int cc_table_version)
+int quickfits_read_map(const char* filename, fitsinfo_map fitsi , double* tarr , double* cc_xarray, double* cc_yarray, double* cc_varray)
 {
 /*
 	INPUTS:
@@ -59,15 +59,16 @@ int quickfits_read_map(const char* filename, double* tarr, int dim2 , double* cc
 	}
 	// read in main image data data
 
-	fits_read_img(fptr, TDOUBLE, fpixel, dim2, &nullval, tarr, &int_null, &status);
+	i = fitsi.imsize_ra * fitsi.imsize_dec;
+	fits_read_img(fptr, TDOUBLE, fpixel, i, &nullval, tarr, &int_null, &status);
 	if(status!=0)
 	{
 		printf("ERROR : quickfits_read_map --> Error reading map, error = %d\n",status);
 	}
 
-	if(ncc > 0)	// read in cc data if present/required
+	if(fitsi.ncc > 0)	// read in cc data if present/required
 	{
-		if (fits_movnam_hdu(fptr,BINARY_TBL,cchdu,cc_table_version,&status))		// move to main AIPS image hdu
+		if (fits_movnam_hdu(fptr,BINARY_TBL,cchdu,fitsi.cc_table_version,&status))		// move to main AIPS image hdu
 		{
 			printf("ERROR : quickfits_read_map --> Error locating AIPS clean component extension, error = %d\n",status);
 			return(status);
@@ -79,7 +80,7 @@ int quickfits_read_map(const char* filename, double* tarr, int dim2 , double* cc
 			{
 				printf("ERROR : quickfits_read_map -->  Error locating CC x position information, error = %d\n",status);
 			}
-			fits_read_col(fptr,TDOUBLE,colnum,1,1,ncc,&double_null,cc_xarray,&int_null,&status);
+			fits_read_col(fptr,TDOUBLE,colnum,1,1,fitsi.ncc,&double_null,cc_xarray,&int_null,&status);
 			if(status!=0)
 			{
 				printf("ERROR : quickfits_read_map -->  Error reading CC x position information, error = %d\n",status);
@@ -90,7 +91,7 @@ int quickfits_read_map(const char* filename, double* tarr, int dim2 , double* cc
 			{
 				printf("ERROR : quickfits_read_map -->  Error locating CC y position information, error = %d\n",status);
 			}
-			fits_read_col(fptr,TDOUBLE,colnum,1,1,ncc,&double_null,cc_yarray,&int_null,&status);
+			fits_read_col(fptr,TDOUBLE,colnum,1,1,fitsi.ncc,&double_null,cc_yarray,&int_null,&status);
 			if(status!=0)
 			{
 				printf("ERROR : quickfits_read_map -->  Error reading CC y position information, error = %d\n",status);
@@ -101,7 +102,7 @@ int quickfits_read_map(const char* filename, double* tarr, int dim2 , double* cc
 			{
 				printf("ERROR : quickfits_read_map -->  Error locating CC flux position information, error = %d\n",status);
 			}
-			fits_read_col(fptr,TDOUBLE,colnum,1,1,ncc,&double_null,cc_varray,&int_null,&status);
+			fits_read_col(fptr,TDOUBLE,colnum,1,1,fitsi.ncc,&double_null,cc_varray,&int_null,&status);
 			if(status!=0)
 			{
 				printf("ERROR : quickfits_read_map -->  Error reading CC flux position information, error = %d\n",status);

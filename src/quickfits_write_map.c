@@ -14,12 +14,12 @@
 #include "quickfits.h"
 
 
-int quickfits_write_map(const char* filename , double* array , int imsize , double cell , double ra , double dec , double* centre_shift , double* rotations , double freq , double freq_delta , int stokes , char* object , char* observer , char* telescope , double equinox , char* date_obs , char* history , double bmaj , double bmin , double bpa , int niter , bool jy_per_beam)
+int quickfits_write_map(const char* filename , double* array, fitsinfo_map fitsi, char* history)
 {
     /*
      Write out FITS map.
      
-     inputs:
+     inputs: (contained in fisinfo_map structure)
         filename = name of file to write out
         array = image to write out
         imsize = dimension of image
@@ -49,7 +49,7 @@ int quickfits_write_map(const char* filename , double* array , int imsize , doub
 	fitsfile *fptr;	// pointer to fits file
 	int status, i, j;
 	long fpixel = 1, naxis = 4, nelements;	// fpixel is the coordinate of the first pixel to be read
-	long naxes[4] = { imsize, imsize , 1 , 1 };
+	long naxes[4] = { fitsi.imsize_ra, fitsi.imsize_dec , 1 , 1 };
 	double temp;
 	char comment[]="";
 	char tstring[FLEN_VALUE];
@@ -71,13 +71,13 @@ int quickfits_write_map(const char* filename , double* array , int imsize , doub
 	fits_create_img(fptr, DOUBLE_IMG, naxis, naxes, &status);
 
 
-	fits_update_key(fptr, TSTRING, "OBJECT", object , comment , &status);
-	fits_update_key(fptr, TSTRING, "OBSERVER", observer , comment , &status);	// write out information about the source
-	fits_update_key(fptr, TSTRING, "TELESCOP", telescope , comment , &status);
-	fits_update_key(fptr, TDOUBLE, "EQUINOX", &equinox , comment, &status);
-	fits_update_key(fptr, TSTRING, "DATE-OBS", date_obs , comment , &status);
-	fits_update_key(fptr, TDOUBLE, "OBSRA", &ra , comment , &status);
-	fits_update_key(fptr, TDOUBLE, "OBSDEC", &dec , comment , &status);
+	fits_update_key(fptr, TSTRING, "OBJECT", fitsi.object , comment , &status);
+	fits_update_key(fptr, TSTRING, "OBSERVER", fitsi.observer , comment , &status);	// write out information about the source
+	fits_update_key(fptr, TSTRING, "TELESCOP", fitsi.telescope , comment , &status);
+	fits_update_key(fptr, TDOUBLE, "EQUINOX", &fitsi.equinox , comment, &status);
+	fits_update_key(fptr, TSTRING, "DATE-OBS", fitsi.date_obs , comment , &status);
+	fits_update_key(fptr, TDOUBLE, "OBSRA", &fitsi.ra , comment , &status);
+	fits_update_key(fptr, TDOUBLE, "OBSDEC", &fitsi.dec , comment , &status);
 
 	temp=1.0;
 	fits_update_key(fptr, TDOUBLE, "BSCALE", &temp,comment, &status);
@@ -86,7 +86,7 @@ int quickfits_write_map(const char* filename , double* array , int imsize , doub
 	fits_update_key(fptr, TDOUBLE, "BZERO", &temp,comment, &status);
 
 
-	if(jy_per_beam)
+	if(fitsi.have_beam)
 	{
 		sprintf(tstring,"JY/BEAM");
 		fits_update_key(fptr, TSTRING, "BUNIT", tstring , comment , &status);
@@ -102,15 +102,15 @@ int quickfits_write_map(const char* filename , double* array , int imsize , doub
 	sprintf(tstring,"RA---SIN");
 	fits_update_key(fptr, TSTRING, "CTYPE1", tstring , comment , &status);	// write out information about the first axis, Right Ascention
 
-	fits_update_key(fptr, TDOUBLE, "CRVAL1", &ra , comment , &status);
+	fits_update_key(fptr, TDOUBLE, "CRVAL1", &fitsi.ra , comment , &status);
 
-	temp = -cell;
+	temp = -fitsi.cell_ra;
 	fits_update_key(fptr, TDOUBLE, "CDELT1", &temp , comment , &status);
 
-	temp = centre_shift[0];
+	temp = fitsi.centre_shift[0];
 	fits_update_key(fptr, TDOUBLE, "CRPIX1", &temp , comment , &status);
 
-	temp = rotations[0];
+	temp = fitsi.rotations[0];
 	fits_update_key(fptr, TDOUBLE, "CROTA1", &temp , comment , &status);
 
 
@@ -120,14 +120,14 @@ int quickfits_write_map(const char* filename , double* array , int imsize , doub
 	sprintf(tstring,"DEC--SIN");
 	fits_update_key(fptr, TSTRING, "CTYPE2", tstring , comment , &status);	// write out information about the second axis, Declination
 
-	fits_update_key(fptr, TDOUBLE, "CRVAL2", &dec , comment , &status);
+	fits_update_key(fptr, TDOUBLE, "CRVAL2", &fitsi.dec , comment , &status);
 
-	fits_update_key(fptr, TDOUBLE, "CDELT2", &cell , comment , &status);
+	fits_update_key(fptr, TDOUBLE, "CDELT2", &fitsi.cell_dec , comment , &status);
 
-	temp = centre_shift[1];
+	temp = fitsi.centre_shift[1];
 	fits_update_key(fptr, TDOUBLE, "CRPIX2", &temp , comment , &status);
 
-	temp = rotations[1];
+	temp = fitsi.rotations[1];
 	fits_update_key(fptr, TDOUBLE, "CROTA2", &temp , comment , &status);
 
 
@@ -137,9 +137,9 @@ int quickfits_write_map(const char* filename , double* array , int imsize , doub
 	sprintf(tstring,"FREQ");
 	fits_update_key(fptr, TSTRING, "CTYPE3", tstring , comment , &status);	// write out information about the third axis, Frequency
 
-	fits_update_key(fptr, TDOUBLE, "CRVAL3", &freq , comment , &status);
+	fits_update_key(fptr, TDOUBLE, "CRVAL3", &fitsi.freq , comment , &status);
 
-	fits_update_key(fptr, TDOUBLE, "CDELT3", &freq_delta , comment , &status);
+	fits_update_key(fptr, TDOUBLE, "CDELT3", &fitsi.freq_delta , comment , &status);
 
 	temp=1.0;
 	fits_update_key(fptr, TDOUBLE, "CRPIX3", &temp , comment , &status);
@@ -152,7 +152,7 @@ int quickfits_write_map(const char* filename , double* array , int imsize , doub
 	sprintf(tstring,"STOKES");
 	fits_update_key(fptr, TSTRING, "CTYPE4" , tstring , comment , &status);	// write out information about the fourth axis, Stokes parameter
 
-	temp = (double)(stokes);
+	temp = (double)(fitsi.stokes);
 	fits_update_key(fptr, TDOUBLE, "CRVAL4", &temp , comment , &status);
 
 	temp=1.0;
@@ -176,7 +176,7 @@ int quickfits_write_map(const char* filename , double* array , int imsize , doub
 	// Write the array of double size floating point to the image
 	fits_write_img(fptr, TDOUBLE, fpixel, nelements, array, &status);
 
-	if(jy_per_beam)	// write out beam information for AIPS if necessary. note AIPS CG --> AIPS CLEAN gaussian, which is not true in this case, but is used for compatability with AIPS
+	if(fitsi.have_beam)	// write out beam information for AIPS if necessary. note AIPS CG --> AIPS CLEAN gaussian, which is not true in this case, but is used for compatability with AIPS
 	{
 		char bmaj_name[] = "BMAJ";
 		char bmin_name[] = "BMIN";
@@ -194,16 +194,16 @@ int quickfits_write_map(const char* filename , double* array , int imsize , doub
 		fits_write_history(fptr , tstring , &status);
 
 		// NB - do no use more than 8 places here. Make sure to use the same accuracy for BMAJ and BMIN
-		sprintf(tstring,"AIPS   CLEAN BMAJ=  %.8lf BMIN=  %.8lf BPA=   %.8lf" , bmaj , bmin , bpa );
+		sprintf(tstring,"AIPS   CLEAN BMAJ=  %.8lf BMIN=  %.8lf BPA=   %.8lf" , fitsi.bmaj , fitsi.bmin , fitsi.bpa );
 		fits_write_history(fptr , tstring , &status);
 
-		if(niter>0)
+		if(fitsi.niter>0)
 		{
 			sprintf(tstring,"COMMENT : NITER BELOW NOT NECESSARILY FROM CLEAN");	// write beam as AIPS-style note
 			fits_write_history(fptr , tstring , &status);
 
 
-			sprintf(tstring,"AIPS   CLEAN NITER=     %d PRODUCT=1",niter);
+			sprintf(tstring,"AIPS   CLEAN NITER=     %d PRODUCT=1",fitsi.niter);
 			fits_write_history(fptr , tstring , &status);
 		}
 
@@ -218,10 +218,10 @@ int quickfits_write_map(const char* filename , double* array , int imsize , doub
 			printf("quickfits_write_map -->  Error writing beam information to %s, error code %i\n",filename,status);
 		}
 
-		fits_write_col(fptr, TDOUBLE , 1 , 1 , 1 , 1 , &freq , &status);
-		fits_write_col(fptr, TDOUBLE , 2 , 1 , 1 , 1 , &bmaj , &status);	// write out values (beam info in degrees)
-		fits_write_col(fptr, TDOUBLE , 3 , 1 , 1 , 1 , &bmin , &status);
-		fits_write_col(fptr, TDOUBLE , 4 , 1 , 1 , 1 , &bpa , &status);
+		fits_write_col(fptr, TDOUBLE , 1 , 1 , 1 , 1 , &fitsi.freq , &status);
+		fits_write_col(fptr, TDOUBLE , 2 , 1 , 1 , 1 , &fitsi.bmaj , &status);	// write out values (beam info in degrees)
+		fits_write_col(fptr, TDOUBLE , 3 , 1 , 1 , 1 , &fitsi.bmin , &status);
+		fits_write_col(fptr, TDOUBLE , 4 , 1 , 1 , 1 , &fitsi.bpa , &status);
 
 	}
 

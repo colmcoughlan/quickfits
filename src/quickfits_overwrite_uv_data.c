@@ -13,7 +13,7 @@
 
 #include "quickfits.h"
 
-int quickfits_overwrite_uv_data(const char* filename, int nvis, int nchan, int nif, double* u, double* v, double* tvis)
+int quickfits_overwrite_uv_data(const char* filename, fitsinfo_uv fitsi, double* u, double* v, double* tvis)
 {
 /*
     Overwrite UV data in a UV FITS file produced by FITAB in AIPS.
@@ -55,14 +55,14 @@ int quickfits_overwrite_uv_data(const char* filename, int nvis, int nchan, int n
 	}
 
 
-	fits_write_col(fptr, TDOUBLE, 1, 1, 1, nvis,  u, &status);
+	fits_write_col(fptr, TDOUBLE, 1, 1, 1, fitsi.nvis,  u, &status);
 	err+=status;
 	if(err!=0)
 	{
 		printf("ERROR : cfits_overwrite_uvdata --> Error writing uarray, custom error = %d\n",err);
 	}
 
-	fits_write_col(fptr, TDOUBLE, 2, 1, 1, nvis,  v, &status);
+	fits_write_col(fptr, TDOUBLE, 2, 1, 1, fitsi.nvis,  v, &status);
 	err+=status;
 
 
@@ -74,7 +74,7 @@ int quickfits_overwrite_uv_data(const char* filename, int nvis, int nchan, int n
 		fits_read_key(fptr,TSTRING,key_name,key_type,comment,&status);
 		if( !strncmp(key_type,"VISIBILITIES",12) )
 		{
-			fits_write_col(fptr, TDOUBLE, i, 1, 1, nvis*12.0*nif*nchan,  tvis, &status);
+			fits_write_col(fptr, TDOUBLE, i, 1, 1, fitsi.nvis*12.0*fitsi.nif*fitsi.nchan,  tvis, &status);
 			err+=status;
 			if(err!=0)
 			{

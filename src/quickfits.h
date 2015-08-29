@@ -17,14 +17,70 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <math.h>
 
 
+#ifndef fitsinfo_defined
+	#define fitsinfo_defined
+	
+	struct fitsinfo_map_tag;	// Use a tag so you can pass stucts as fitsinfo_map etc.,  rather than struct fitsinfo_map
+	typedef struct fitsinfo_map_tag{
+		int imsize_ra;
+		int imsize_dec;
+		double cell_ra;
+		double cell_dec;
+		double ra;
+		double dec;
+		double centre_shift[2];
+		double rotations[2];
+		double stokes;
+		double freq;
+		double freq_delta;
 
-int quickfits_write_map(const char* filename , double* array , int imsize , double cell , double ra , double dec , double* centre_shift , double* rotations , double freq , double freq_delta , int stokes , char* object , char* observer , char* telescope , double equinox , char* date_obs , char* history , double bmaj , double bmin , double bpa , int niter , bool jy_per_beam);
-int quickfits_read_uv_header(const char* filename, double* ra, double* dec, char* key_string, double* freq, int* nvis, int* nchan, int* central_chan, double* chan_width, int* nif);
-int quickfits_read_uv_data(const char* filename, int nvis, int nchan, int nif, double* u_array, double* v_array, double* tvis, double* if_array);
-int quickfits_overwrite_uv_data(const char* filename, int nvis, int nchan, int nif, double* u, double* v, double* tvis);
+		char object[FLEN_VALUE];
+		char observer[FLEN_VALUE];	// information about the source
+		char telescope[FLEN_VALUE];
+		double equinox;
+		char date_obs[FLEN_VALUE];
+		
+		double bmaj;	// Assumed in degrees
+		double bmin;
+		double bpa;
+		bool have_beam;
+		int niter;
+		
+		int ncc;
+		int cc_table_version;
+	}fitsinfo_map;
+	
+	struct fitsinfo_uv_tag;
+	typedef struct fitsinfo_uv_tag{
+		int nvis;
+		double ra;
+		double dec;
+		int nif;
+		int nchan;
+		int chan_width;
+		int central_chan;
+		double freq;
+
+		char object[FLEN_VALUE];
+		char observer[FLEN_VALUE];	// information about the source
+		char telescope[FLEN_VALUE];
+		double equinox;
+		char date_obs[FLEN_VALUE];
+	}fitsinfo_uv;
+	
+	
+#endif
+
+
+
+
+int quickfits_write_map(const char* filename , double* array, fitsinfo_map fitsi, char* history);
+int quickfits_read_uv_header(const char* filename, fitsinfo_uv* fitsi);
+int quickfits_read_uv_data(const char* filename, fitsinfo_uv fitsi, double* u_array, double* v_array, double* tvis, double* if_array);
+int quickfits_overwrite_uv_data(const char* filename, fitsinfo_uv fitsi, double* u, double* v, double* tvis);
 int quickfits_replace_ant_info(const char* filename, double* rdterm, double* ldterm);
-int quickfits_read_cc_table(const char* filename , double* cc_xarray, double* cc_yarray, double* cc_varray , int ncc, int cc_table_version);
-int quickfits_read_map_header(const char* filename , int* dim , double* cell , double* ra , double* dec , double* centre_shift , double* rotations , double* freq , double* freq_delta , int* stokes , char* object , char* observer , char* telescope , double* equinox , char* date_obs ,  double* bmaj , double* bmin , double* bpa , int* ncc, int cc_table_version);
-int quickfits_read_map(const char* filename, double* tarr, int dim2 , double* cc_xarray, double* cc_yarray, double* cc_varray , int ncc, int cc_table_version);
+int quickfits_read_cc_table(const char* filename , fitsinfo_map fitsi , double* cc_xarray, double* cc_yarray, double* cc_varray);
+int quickfits_read_map_header(const char* filename , fitsinfo_map* fitsi);
+int quickfits_read_map(const char* filename, fitsinfo_map fitsi , double* tarr , double* cc_xarray, double* cc_yarray, double* cc_varray);
 
 

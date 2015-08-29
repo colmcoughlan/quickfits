@@ -13,7 +13,7 @@
 
 #include "quickfits.h"
 
-int quickfits_read_uv_data(const char* filename, int nvis, int nchan, int nif, double* u_array, double* v_array, double* tvis, double* if_array)
+int quickfits_read_uv_data(const char* filename, fitsinfo_uv fitsi, double* u_array, double* v_array, double* tvis, double* if_array)
 {
 /*
 	INPUTS:
@@ -64,17 +64,17 @@ int quickfits_read_uv_data(const char* filename, int nvis, int nchan, int nif, d
 		
 		if( !strncmp(key_type,"UU",2) )
 		{
-			fits_read_col(fptr, TDOUBLE, i, 1, 1, nvis, &d_null,  u_array, &anynull, &status);
+			fits_read_col(fptr, TDOUBLE, i, 1, 1, fitsi.nvis, &d_null,  u_array, &anynull, &status);
 			err+=status;
 		}
 		if( !strncmp(key_type,"VV",2) )
 		{
-			fits_read_col(fptr, TDOUBLE, i, 1, 1, nvis, &d_null,  v_array, &anynull, &status);
+			fits_read_col(fptr, TDOUBLE, i, 1, 1, fitsi.nvis, &d_null,  v_array, &anynull, &status);
 			err+=status;
 		}
 		if( !strncmp(key_type,"VISIBILITIES",12) )
 		{
-			fits_read_col(fptr, TDOUBLE, i, 1, 1, nvis*12.0*nif*nchan, &d_null,  tvis, &anynull, &status);
+			fits_read_col(fptr, TDOUBLE, i, 1, 1, fitsi.nvis*12.0*fitsi.nif*fitsi.nchan, &d_null,  tvis, &anynull, &status);
 			err+=status;
 		}
 
@@ -103,7 +103,7 @@ int quickfits_read_uv_data(const char* filename, int nvis, int nchan, int nif, d
 		
 			if( !strncmp(key_type,"IF FREQ",7) )
 			{
-				fits_read_col(fptr, TDOUBLE, i, 1, 1, nif, &d_null,  if_array, &anynull, &status);
+				fits_read_col(fptr, TDOUBLE, i, 1, 1, fitsi.nif, &d_null,  if_array, &anynull, &status);
 				err+=status;
 			}
 

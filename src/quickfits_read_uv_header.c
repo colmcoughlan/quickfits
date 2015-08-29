@@ -13,7 +13,7 @@
 
 #include "quickfits.h"
 
-int quickfits_read_uv_header(const char* filename, double* ra, double* dec, char* object, double* freq, int* nvis, int* nchan, int* central_chan, double* chan_width, int* nif)
+int quickfits_read_uv_header(const char* filename, fitsinfo_uv* fitsi)
 {
 /*
     Read useful keywords from the header of a UV FITS file produced by FITAB in AIPS.
@@ -63,16 +63,24 @@ int quickfits_read_uv_header(const char* filename, double* ra, double* dec, char
 
 	// read in some keys
 
-	fits_read_key(fptr,TSTRING,"OBJECT",object,comment,&status);
+	fits_read_key(fptr,TSTRING,"OBJECT",fitsi[0].object,comment,&status);
 	err+=status;
-	fits_read_key(fptr,TDOUBLE,"OBSRA",ra,comment,&status);
+	fits_read_key(fptr,TSTRING,"OBSERVER",fitsi[0].observer,comment,&status);
 	err+=status;
-	fits_read_key(fptr,TDOUBLE,"OBSDEC",dec,comment,&status);
+	fits_read_key(fptr,TSTRING,"TELESCOP",fitsi[0].telescope,comment,&status);
+	err+=status;
+	fits_read_key(fptr,TSTRING,"DATE-OBS",fitsi[0].date_obs,comment,&status);
+	err+=status;
+	fits_read_key(fptr,TSTRING,"EQUINOX",&fitsi[0].equinox,comment,&status);
+	err+=status;
+	fits_read_key(fptr,TDOUBLE,"OBSRA",&fitsi[0].ra,comment,&status);
+	err+=status;
+	fits_read_key(fptr,TDOUBLE,"OBSDEC",&fitsi[0].dec,comment,&status);
 	err+=status;
 	
 	fits_read_key(fptr,TDOUBLE,"NAXIS2",&temp,comment,&status);
 	err+=status;
-	nvis[0]=(int)(temp);	// nvis is stored as a double in the FITS file
+	fitsi[0].nvis=(int)(temp);	// nvis is stored as a double in the FITS file
 	if(err!=0)
 	{
 		printf("ERROR : quickfits_read_uv_header --> Error reading keywords, custom error = %d\n",err);
@@ -105,18 +113,18 @@ int quickfits_read_uv_header(const char* filename, double* ra, double* dec, char
 		if( !strncmp(key_type,"FREQ",4) )
 		{
 			sprintf(key_name,"%dCRVL%d",i,j);
-			fits_read_key(fptr,TDOUBLE,key_name,freq,comment,&status);
+			fits_read_key(fptr,TDOUBLE,key_name,&fitsi[0].freq,comment,&status);
 			sprintf(key_name,"%dCDLT%d",i,j);
-			fits_read_key(fptr,TDOUBLE,key_name,chan_width,comment,&status);
+			fits_read_key(fptr,TDOUBLE,key_name,&fitsi[0].chan_width,comment,&status);
 			sprintf(key_name,"%dCRPX%d",i,j);
 			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);
-			central_chan[0] = temp; // central channel stored as double in data
-			nchan[0] = vis_axes[i-1];
+			fitsi[0].central_chan = temp; // central channel stored as double in data
+			fitsi[0].nchan = vis_axes[i-1];
 		}
 		
 		if( !strncmp(key_type,"IF",2) )
 		{
-			nif[0] = vis_axes[i-1];
+			fitsi[0].nif = vis_axes[i-1];
 		}
 
 		i++;

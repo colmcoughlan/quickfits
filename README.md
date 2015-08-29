@@ -1,6 +1,12 @@
-quickfits v1.0
+quickfits v1.1
 12.12.2014
 Colm Coughlan
+
+Changes
+
+v1.0: Initial release
+
+v1.1: Now allows non-square images and different cellsizes in RA and DEC directions
 
 Released under BSD 2-clause style licence:
 

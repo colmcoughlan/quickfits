@@ -13,7 +13,7 @@
 
 #include "quickfits.h"
 
-int quickfits_read_cc_table(const char* filename , double* cc_xarray, double* cc_yarray, double* cc_varray , int ncc, int cc_table_version)
+int quickfits_read_cc_table(const char* filename , fitsinfo_map fitsi , double* cc_xarray, double* cc_yarray, double* cc_varray)
 {
 /*
 	INPUTS:
@@ -54,7 +54,7 @@ int quickfits_read_cc_table(const char* filename , double* cc_xarray, double* cc
 	}
 
 
-	if (fits_movnam_hdu(fptr,BINARY_TBL,cchdu,cc_table_version,&status))		// move to main AIPS image hdu
+	if (fits_movnam_hdu(fptr,BINARY_TBL,cchdu,fitsi.cc_table_version,&status))		// move to main AIPS image hdu
 	{
 		printf("ERROR : quickfits_read_cc_table --> Error locating AIPS clean component extension, error = %d\n",status);
 		return(status);
@@ -66,7 +66,7 @@ int quickfits_read_cc_table(const char* filename , double* cc_xarray, double* cc
 		{
 			printf("ERROR : quickfits_read_cc_table -->  Error locating CC x position information, error = %d\n",status);
 		}
-		fits_read_col(fptr,TDOUBLE,colnum,1,1,ncc,&double_null,cc_xarray,&int_null,&status);
+		fits_read_col(fptr,TDOUBLE,colnum,1,1,fitsi.ncc,&double_null,cc_xarray,&int_null,&status);
 		if(status!=0)
 		{
 			printf("ERROR : quickfits_read_cc_table -->  Error reading CC x position information, error = %d\n",status);
@@ -77,7 +77,7 @@ int quickfits_read_cc_table(const char* filename , double* cc_xarray, double* cc
 		{
 			printf("ERROR : quickfits_read_cc_table -->  Error locating CC y position information, error = %d\n",status);
 		}
-		fits_read_col(fptr,TDOUBLE,colnum,1,1,ncc,&double_null,cc_yarray,&int_null,&status);
+		fits_read_col(fptr,TDOUBLE,colnum,1,1,fitsi.ncc,&double_null,cc_yarray,&int_null,&status);
 		if(status!=0)
 		{
 			printf("ERROR : quickfits_read_cc_table -->  Error reading CC y position information, error = %d\n",status);
@@ -88,7 +88,7 @@ int quickfits_read_cc_table(const char* filename , double* cc_xarray, double* cc
 		{
 			printf("ERROR : quickfits_read_cc_table -->  Error locating CC flux position information, error = %d\n",status);
 		}
-		fits_read_col(fptr,TDOUBLE,colnum,1,1,ncc,&double_null,cc_varray,&int_null,&status);
+		fits_read_col(fptr,TDOUBLE,colnum,1,1,fitsi.ncc,&double_null,cc_varray,&int_null,&status);
 		if(status!=0)
 		{
 			printf("ERROR : quickfits_read_cc_table -->  Error reading CC flux position information, error = %d\n",status);

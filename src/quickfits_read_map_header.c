@@ -13,7 +13,7 @@
 
 #include "quickfits.h"
 
-int quickfits_read_map_header(const char* filename , int* dim , double* cell , double* ra , double* dec , double* centre_shift , double* rotations , double* freq , double* freq_delta , int* stokes , char* object , char* observer , char* telescope , double* equinox , char* date_obs ,  double* bmaj , double* bmin , double* bpa , int* ncc, int cc_table_version)
+int quickfits_read_map_header(const char* filename , fitsinfo_map* fitsi)
 {
 
 /*
@@ -70,11 +70,11 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 
 	// read in some optional keys (these may fail on strange files - but are not that important)
 
-	fits_read_key(fptr,TSTRING,"OBJECT",object,comment,&status);
-	fits_read_key(fptr,TSTRING,"OBSERVER",observer,comment,&status);
-	fits_read_key(fptr,TSTRING,"TELESCOP",telescope,comment,&status);
-	fits_read_key(fptr,TDOUBLE,"EQUINOX",equinox,comment,&status);
-	fits_read_key(fptr,TSTRING,"DATE-OBS",date_obs,comment,&status);
+	fits_read_key(fptr,TSTRING,"OBJECT",fitsi[0].object,comment,&status);
+	fits_read_key(fptr,TSTRING,"OBSERVER",fitsi[0].observer,comment,&status);
+	fits_read_key(fptr,TSTRING,"TELESCOP",fitsi[0].telescope,comment,&status);
+	fits_read_key(fptr,TDOUBLE,"EQUINOX",&fitsi[0].equinox,comment,&status);
+	fits_read_key(fptr,TSTRING,"DATE-OBS",fitsi[0].date_obs,comment,&status);
 	
 	//	Now iterate through CTYPE coords to get important information about RA, DEC, cellsize etc.
 	//  Most of this data is important - at least notify the user if some is missing
@@ -92,7 +92,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			j++;
 			
 			sprintf(key_name,"CRVAL%d",i);
-			fits_read_key(fptr,TDOUBLE,key_name,ra,comment,&status);
+			fits_read_key(fptr,TDOUBLE,key_name,&fitsi[0].ra,comment,&status);
 			if(status==KEY_NO_EXIST)
 			{
 				printf("WARNING : quickfits_read_map_header --> Missing RA information %s\n",key_name);
@@ -108,7 +108,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			}
 			else
 			{
-				cell[0]=fabs(temp);
+				fitsi[0].cell_ra=fabs(temp);
 			}
 			
 			sprintf(key_name,"CRPIX%d",i);
@@ -120,7 +120,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			}
 			else
 			{
-				centre_shift[0]=temp;
+				fitsi[0].centre_shift[0]=temp;
 			}
 			
 			sprintf(key_name,"CROTA%d",i);
@@ -132,7 +132,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			}
 			else
 			{
-				rotations[0]=temp;
+				fitsi[0].rotations[0]=temp;
 			}
 		}
 
@@ -141,11 +141,23 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			j++;
 			
 			sprintf(key_name,"CRVAL%d",i);
-			fits_read_key(fptr,TDOUBLE,key_name,dec,comment,&status);
+			fits_read_key(fptr,TDOUBLE,key_name,&fitsi[0].dec,comment,&status);
 			if(status==KEY_NO_EXIST)
 			{
 				printf("WARNING : quickfits_read_map_header --> Missing DEC information %s\n",key_name);
 				status = 0;
+			}
+			
+			sprintf(key_name,"CDELT%d",i);
+			fits_read_key(fptr,TDOUBLE,key_name,&temp,comment,&status);
+			if(status==KEY_NO_EXIST)
+			{
+				printf("WARNING : quickfits_read_map_header --> Missing RA information %s\n",key_name);
+				status= 0;
+			}
+			else
+			{
+				fitsi[0].cell_dec=fabs(temp);
 			}
 
 			sprintf(key_name,"CRPIX%d",i);
@@ -157,7 +169,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			}
 			else
 			{
-				centre_shift[1]=temp;
+				fitsi[0].centre_shift[1]=temp;
 			}
 			
 			sprintf(key_name,"CROTA%d",i);
@@ -169,7 +181,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			}
 			else
 			{
-				rotations[1]=temp;
+				fitsi[0].rotations[1]=temp;
 			}
 		}
 		
@@ -178,7 +190,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			j++;
 			
 			sprintf(key_name,"CRVAL%d",i);
-			fits_read_key(fptr,TDOUBLE,key_name,freq,comment,&status);
+			fits_read_key(fptr,TDOUBLE,key_name,&fitsi[0].freq,comment,&status);
 			if(status==KEY_NO_EXIST)
 			{
 				printf("WARNING : quickfits_read_map_header --> Missing FREQ information %s\n",key_name);
@@ -186,7 +198,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			}
 
 			sprintf(key_name,"CDELT%d",i);
-			fits_read_key(fptr,TDOUBLE,key_name,freq_delta,comment,&status);
+			fits_read_key(fptr,TDOUBLE,key_name,&fitsi[0].freq_delta,comment,&status);
 			if(status==KEY_NO_EXIST)
 			{
 				printf("WARNING : quickfits_read_map_header --> Missing FREQ information %s\n",key_name);
@@ -206,7 +218,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			}
 			else
 			{
-				stokes[0]=(int)(temp);
+				fitsi[0].stokes=(int)(temp);
 			}
 		}
 		i++;
@@ -214,13 +226,16 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 	status=0;
 	if(j!=3)
 	{
-		printf("WARNING : quickfits_read_map_header --> Error reading RA, DEC, FREQ information\n",err);
+		printf("WARNING : quickfits_read_map_header --> Error reading RA, DEC, FREQ information\n");
 		printf("\t Only %d out of 3 read.\n",j);
 	}
 
 
 	fits_read_key(fptr,TDOUBLE,"NAXIS1",&temp,comment,&status);
-	dim[0]=(int)(temp);	// dim is stored as a double in the FITS file
+	fitsi[0].imsize_ra=(int)(temp);	// dim is stored as a double in the FITS file
+	
+	fits_read_key(fptr,TDOUBLE,"NAXIS2",&temp,comment,&status);
+	fitsi[0].imsize_dec=(int)(temp);	// dim is stored as a double in the FITS file
 
 	if(status!=0)
 	{
@@ -228,11 +243,11 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 		return(err);
 	}
 
-	fits_read_key(fptr,TDOUBLE,"BMAJ",bmaj,comment,&status);
+	fits_read_key(fptr,TDOUBLE,"BMAJ",&fitsi[0].bmaj,comment,&status);
 	err += status;
-	fits_read_key(fptr,TDOUBLE,"BMIN",bmin,comment,&status);
+	fits_read_key(fptr,TDOUBLE,"BMIN",&fitsi[0].bmin,comment,&status);
 	err += status;
-	fits_read_key(fptr,TDOUBLE,"BPA",bpa,comment,&status);
+	fits_read_key(fptr,TDOUBLE,"BPA",&fitsi[0].bpa,comment,&status);
 	err += status;
 	
 	if(err!=0)	// if the beam information isn't in the main header, move to AIPS CG HDU for beam information
@@ -241,9 +256,9 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 		if (fits_movnam_hdu(fptr,BINARY_TBL,beamhdu,0,&status))		// move to beam information hdu
 		{
 			printf("WARNING : quickfits_read_map_header --> No beam information found.\n");
-			bmaj[0] = 0.0;
-			bmin[0] = 0.0;	// changed this because model files don't have any beam information. Should check to make sure beam info is valid in other code
-			bpa[0] = 0.0;
+			fitsi[0].bmaj = 0.0;
+			fitsi[0].bmin = 0.0;	// changed this because model files don't have any beam information. Should check to make sure beam info is valid in other code
+			fitsi[0].bpa = 0.0;
 		}
 		else
 		{
@@ -261,7 +276,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			}
 			else
 			{
-				bmaj[0]=(double)(floatbuff);
+				fitsi[0].bmaj=(double)(floatbuff);
 			}
 
 			fits_get_colnum(fptr,CASEINSEN,bminname,&colnum,&status);
@@ -278,7 +293,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			}
 			else
 			{
-				bmin[0]=(double)(floatbuff);
+				fitsi[0].bmin=(double)(floatbuff);
 			}
 
 			fits_get_colnum(fptr,CASEINSEN,bpaname,&colnum,&status);
@@ -295,7 +310,7 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 			}
 			else
 			{
-				bpa[0]=(double)(floatbuff);
+				fitsi[0].bpa=(double)(floatbuff);
 			}
 		}
 	}
@@ -307,13 +322,13 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 
 	// move to AIPS CC HDU for clean component information if requested. Read, or give error if a failure occurs. Allow for possibility of the outdated "A3DTABLE" table type 6 as well as normal BINARY_TBL
 
-	if (cc_table_version >=0 )
+	if (fitsi[0].cc_table_version >=0 )
 	{
-		fits_movnam_hdu(fptr,ANY_HDU,cchdu,cc_table_version,&status);
+		fits_movnam_hdu(fptr,ANY_HDU,cchdu,fitsi[0].cc_table_version,&status);
 		if (status==0)		// move to main AIPS UV hdu
 		{
 			fits_get_num_rows(fptr,&longbuff,&status);
-			ncc[0]=longbuff;
+			fitsi[0].ncc=longbuff;
 			if(status!=0)
 			{
 				printf("ERROR : quickfits_read_map_header -->  Error reading number of clean components, error = %d\n",status);
@@ -323,13 +338,13 @@ int quickfits_read_map_header(const char* filename , int* dim , double* cell , d
 		else
 		{
 			printf("WARNING : quickfits_read_map_header -->  No clean component table detected.\n");
-			ncc[0]=0;
+			fitsi[0].ncc=0;
 			return(status);
 		}
 	}
 	else
 	{
-		ncc[0]=0;
+		fitsi[0].ncc=0;
 	}
 
 
