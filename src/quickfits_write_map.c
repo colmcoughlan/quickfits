@@ -93,7 +93,7 @@ int quickfits_write_map(const char* filename , double* array, fitsinfo_map fitsi
 	}
 	else
 	{
-		sprintf(tstring,"JY/PIX");
+		sprintf(tstring,"JY/PIXEL");
 		fits_update_key(fptr, TSTRING, "BUNIT", tstring , comment , &status);
 	}
 

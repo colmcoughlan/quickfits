@@ -31,6 +31,7 @@ int quickfits_overwrite_uv_data(const char* filename, fitsinfo_uv fitsi, double*
 	int status, i, j;
 	int err;
 	char extname[]="AIPS UV ";
+	char anten_tab_name[]="AIPS AN ";
 	char comment[FLEN_VALUE];
 	char key_name[FLEN_VALUE];
 	char key_type[FLEN_VALUE];
@@ -85,6 +86,71 @@ int quickfits_overwrite_uv_data(const char* filename, fitsinfo_uv fitsi, double*
 		i++;
 	}
 	status = 0;
+	
+	fits_update_key(fptr,TDOUBLE,"OBSRA",&fitsi.ra,comment,&status);
+	err+=status;
+	fits_update_key(fptr,TDOUBLE,"OBSDEC",&fitsi.dec,comment,&status);
+	err+=status;
+	fits_update_key(fptr,TSTRING,"OBJECT",fitsi.object,comment,&status);
+	err+=status;
+	fits_update_key(fptr,TSTRING,"OBSERVER",fitsi.observer,comment,&status);
+	err+=status;
+	fits_update_key(fptr,TSTRING,"TELESCOP",fitsi.telescope,comment,&status);
+	err+=status;
+	fits_update_key(fptr,TSTRING,"DATE-OBS",fitsi.date_obs,comment,&status);
+	err+=status;
+	fits_update_key(fptr,TSTRING,"EQUINOX",&fitsi.equinox,comment,&status);
+	
+	if(err!=0)
+	{
+		printf("ERROR : quickfits_overwrite_uv_data --> Error updating keywords, custom error = %d\n",err);
+	}
+	
+	j=i-2;	// set j to point to the visibility data
+	i=1;
+	status=0;
+	while(status!=KEY_NO_EXIST)
+	{
+		sprintf(key_name,"%dCTYP%d",i,j);
+		fits_read_key(fptr,TSTRING,key_name,key_type,comment,&status);
+		
+		if( !strncmp(key_type,"FREQ",4) )
+		{
+			sprintf(key_name,"%dCRVL%d",i,j);
+			fits_update_key(fptr,TDOUBLE,key_name,&fitsi.freq,comment,&status);
+		}
+		
+		if( !strncmp(key_type,"RA",2) )
+		{
+			sprintf(key_name,"%dCRVL%d",i,j);
+			fits_update_key(fptr,TDOUBLE,key_name,&fitsi.ra,comment,&status);
+		}
+		
+		if( !strncmp(key_type,"DEC",2) )
+		{
+			sprintf(key_name,"%dCRVL%d",i,j);
+			fits_update_key(fptr,TDOUBLE,key_name,&fitsi.dec,comment,&status);
+		}
+
+		i++;
+	}
+	status = 0;
+	
+	if (fits_movnam_hdu(fptr,BINARY_TBL,anten_tab_name,0,&status))		// move to antenna table
+	{
+		printf("ERROR : quickfits_overwrite_uv_data --> Error locating AIPS antenna table extension, error = %d\n",status);
+		return(status);
+	}
+	else
+	{
+		fits_update_key(fptr,TDOUBLE,"FREQ",&fitsi.freq,comment,&status);
+		if(status != 0 )
+		{
+			printf("ERROR : quickfits_overwrite_uv_data --> Error updating frequency, error = %d.\n",status);
+		}
+	}
+	
+	
 
 
 
