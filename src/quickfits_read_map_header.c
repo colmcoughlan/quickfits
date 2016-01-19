@@ -243,6 +243,7 @@ int quickfits_read_map_header(const char* filename , fitsinfo_map* fitsi)
 		return(err);
 	}
 
+	fitsi[0].have_beam = true; 	// assume true until proved otherwise
 	fits_read_key(fptr,TDOUBLE,"BMAJ",&fitsi[0].bmaj,comment,&status);
 	err += status;
 	fits_read_key(fptr,TDOUBLE,"BMIN",&fitsi[0].bmin,comment,&status);
@@ -259,6 +260,7 @@ int quickfits_read_map_header(const char* filename , fitsinfo_map* fitsi)
 			fitsi[0].bmaj = 0.0;
 			fitsi[0].bmin = 0.0;	// changed this because model files don't have any beam information. Should check to make sure beam info is valid in other code
 			fitsi[0].bpa = 0.0;
+			fitsi[0].have_beam = false;
 		}
 		else
 		{

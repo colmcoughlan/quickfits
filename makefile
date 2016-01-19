@@ -1,5 +1,5 @@
 # Set compiler to g++.
-CC=gcc-mp-4.9
+CC=gcc-5
 # Set options for the compiler
 CFLAGS=-c -O3
 
