@@ -30,7 +30,7 @@ int quickfits_read_map(const char* filename, fitsinfo_map fitsi , double* tarr ,
 
 	int status;
 	char comment[FLEN_VALUE];
-	float nullval=666.0;
+	double nullval=NAN;
 	int int_null=0;
 	double double_null=0;
 	long fpixel=1;

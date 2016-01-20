@@ -47,7 +47,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		int niter;
 		
 		int ncc;
-		int cc_table_version;	// don't read by default
+		int cc_table_version;
 	}fitsinfo_map;
 	
 	struct fitsinfo_uv_tag;
