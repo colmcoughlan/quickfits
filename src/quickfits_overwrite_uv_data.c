@@ -99,7 +99,7 @@ int quickfits_overwrite_uv_data(const char* filename, fitsinfo_uv fitsi, double*
 	err+=status;
 	fits_update_key(fptr,TSTRING,"DATE-OBS",fitsi.date_obs,comment,&status);
 	err+=status;
-	fits_update_key(fptr,TSTRING,"EQUINOX",&fitsi.equinox,comment,&status);
+	fits_update_key(fptr,TDOUBLE,"EQUINOX",&fitsi.equinox,comment,&status);
 	
 	if(err!=0)
 	{
