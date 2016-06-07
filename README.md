@@ -1,12 +1,14 @@
-quickfits v1.1
+quickfits v1.101
 12.12.2014
 Colm Coughlan
 
 Changes
 
-v1.0: Initial release
+v1.101: June 2016. Fixed bug reading EQUINOX keyword from UV FITS file
 
 v1.1: Now allows non-square images and different cellsizes in RA and DEC directions
+
+v1.0: Initial release
 
 Released under BSD 2-clause style licence:
 

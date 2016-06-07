@@ -71,7 +71,7 @@ int quickfits_read_uv_header(const char* filename, fitsinfo_uv* fitsi)
 	err+=status;
 	fits_read_key(fptr,TSTRING,"DATE-OBS",fitsi[0].date_obs,comment,&status);
 	err+=status;
-	fits_read_key(fptr,TSTRING,"EQUINOX",&fitsi[0].equinox,comment,&status);
+	fits_read_key(fptr,TDOUBLE,"EQUINOX",&fitsi[0].equinox,comment,&status);
 	err+=status;
 	fits_read_key(fptr,TDOUBLE,"OBSRA",&fitsi[0].ra,comment,&status);
 	err+=status;
