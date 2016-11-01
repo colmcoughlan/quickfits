@@ -8,7 +8,7 @@ Dependencies: a C compiler
 
 If you're using linux you probably already have a c compiler (gcc). On a mac you can install this through homebrew with "brew install gcc5", to install gcc version 5.
 
-Once cfitsio has been installed and you know which C compiler you have, edit the makefile such that CC=<your C compiler executable>.
+Once cfitsio has been installed and you know which C compiler you have, edit the makefile such that CC=\<your C compiler executable>.
 
 You can then build the library by running "make -f makefile". If successful, you should see quickfits.a and quickfits.h in the top directory. You can move these to a location on your library path, or just add the current location to the path.
 
