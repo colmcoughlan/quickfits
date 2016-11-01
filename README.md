@@ -2,7 +2,17 @@ quickfits v1.101
 12.12.2014
 Colm Coughlan
 
-Changes
+# Installation instructions
+
+Dependencies: a C compiler
+
+If you're using linux you probably already have a c compiler (gcc). On a mac you can install this through homebrew with "brew install gcc5", to install gcc version 5.
+
+Once cfitsio has been installed and you know which C compiler you have, edit the makefile such that CC=<your C compiler executable>.
+
+You can then build the library by running "make -f makefile". If successful, you should see quickfits.a and quickfits.h in the top directory. You can move these to a location on your library path, or just add the current location to the path.
+
+# Changes
 
 v1.101: June 2016. Fixed bug reading EQUINOX keyword from UV FITS file
 
@@ -12,7 +22,7 @@ v1.0: Initial release
 
 =============
 
-General C interfaces to the CFITSIO used across multiple programs
+# General C interfaces to the CFITSIO used across multiple programs
 
 Contains:
 	quickfits_read_map_header:
