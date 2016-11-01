@@ -4,7 +4,9 @@ Colm Coughlan
 
 # Installation instructions
 
-Dependencies: a C compiler
+Dependencies: a C compiler. You will also need cfitsio to run quickfits.
+
+On Ubuntu cfitsio can be found in the cfitsio-dev package. On a mac the best way to install it might be through homebrew (brew install cfitsio). More mac instructions can be found at https://heasarc.gsfc.nasa.gov/fitsio/fitsio_macosx.html.
 
 If you're using linux you probably already have a c compiler (gcc). On a mac you can install this through homebrew with "brew install gcc5", to install gcc version 5.
 
