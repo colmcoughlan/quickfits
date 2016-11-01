@@ -1,6 +1,6 @@
-quickfits v1.101
-12.12.2014
-Colm Coughlan
+# Usage
+
+Quickfits is a library of shortcuts for cfitsio, which is itself a wrapper of fitsio.
 
 # Installation instructions
 
@@ -15,6 +15,10 @@ Once cfitsio has been installed and you know which C compiler you have, edit the
 You can then build the library by running "make -f makefile". If successful, you should see quickfits.a and quickfits.h in the top directory. You can move these to a location on your library path, or just add the current location to the path.
 
 # Changes
+
+quickfits v1.101
+12.12.2014
+Colm Coughlan
 
 v1.101: June 2016. Fixed bug reading EQUINOX keyword from UV FITS file
 
