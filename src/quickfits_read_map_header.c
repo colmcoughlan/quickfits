@@ -84,6 +84,11 @@ int quickfits_read_map_header(const char* filename , fitsinfo_map* fitsi)
 	j=0;
 	while(status!=KEY_NO_EXIST)
 	{
+		if(status != 0) {
+			printf("ERROR : quickfits_read_map_header -->  Error reading from %s\n", filename);
+			printf("ERROR : quickfits_read_map_header -->  FITSIO error code: %d\n", status);
+			return(1);
+		}
 		sprintf(key_name,"CTYPE%d",i);
 		fits_read_key(fptr,TSTRING,key_name,key_type,comment,&status);
 
